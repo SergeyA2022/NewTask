@@ -29,4 +29,6 @@ public class Group implements Serializable {
     private String faculty;
     @OneToMany(mappedBy = "group")
     private List<Student> students;
+
+
 }

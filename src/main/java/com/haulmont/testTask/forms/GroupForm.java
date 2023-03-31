@@ -9,59 +9,67 @@ import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.data.binder.BeanValidationBinder;
-import com.vaadin.flow.data.binder.Binder;
-import com.vaadin.flow.data.binder.ValidationException;
+import com.vaadin.flow.data.binder.*;
 import com.vaadin.flow.shared.Registration;
 
-public class GroupForm extends FormLayout{
-    Binder<Group> binder = new BeanValidationBinder<>(Group.class);
-    TextField number = new TextField("Номер группы");
-    TextField faculty = new TextField("Факультет");
-    Button ok = new Button("OK");
-    Button Cancel = new Button("Отменить");
-    private Group group;
+import java.util.List;
+
+public class GroupForm extends FormLayout {
+    private final Binder<Group> binder = new BeanValidationBinder<>(Group.class);
+    private final TextField number = new TextField("Номер группы");
+    private final TextField faculty = new TextField("Факультет");
+    private final Button ok = new Button("OK");
+    private final Button Cancel = new Button("Отменить");
+
     Dialog dialog = new Dialog();
 
-    public GroupForm() {
+    public GroupForm(List<Group> groups) {
         addClassName("group-form");
-        dialog.add(new VerticalLayout(number, faculty, createButtonsLayout()));
-        binder.bindInstanceFields(this);
 
+        binder.forField(number)
+                .asRequired("Это поле обязательное для заполнения!")
+                .withValidator(
+                        name -> !name.equals(foreach(groups, name)),
+                        "Вы пытаетесь добавить существующую группу")
+                .bind(Group::getNumber, Group::setNumber);
+        binder.forField(faculty)
+                .asRequired("Это поле обязательное для заполнения!")
+                .bind(Group::getFaculty, Group::setFaculty);
+        dialog.add(new VerticalLayout(number, faculty, createButtonsLayout()));
+    }
+
+    private String foreach(List<Group> groups, String name) {
+        for (Group g : groups)
+            if (g.getNumber().equals(name)) {
+                return name;
+            }
+        return null;
+    }
+
+    public void setGroup(Group group) {
+        binder.setBean(group);
     }
 
     public Dialog getDialog() {
         return dialog;
     }
 
-
-    public void setGroup(Group group) {
-        this.group = group;
-        binder.readBean(group);
-    }
-    /*TODO Украшения кнопок чтобы нарядные были*/
     private Component createButtonsLayout() {
         ok.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        Cancel.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-
         ok.addClickListener(event -> validateAndSave());
+        Cancel.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
         Cancel.addClickListener(event -> fireEvent(new CloseEvent(this)));
-
         return new HorizontalLayout(ok, Cancel);
     }
 
     private void validateAndSave() {
-        try {
-            binder.writeBean(group);
-            fireEvent(new SaveEvent(this, group));
-        } catch (ValidationException e) {
-            throw new RuntimeException(e);
+        if (binder.isValid()) {
+            fireEvent(new SaveEvent(this, binder.getBean()));
         }
     }
 
-    // Events
     public static abstract class GroupFormEvent extends ComponentEvent<GroupForm> {
-        private Group group;
+        private final Group group;
 
         protected GroupFormEvent(GroupForm source, Group group) {
             super(source, false);
@@ -86,7 +94,6 @@ public class GroupForm extends FormLayout{
     }
 
     public <T extends ComponentEvent<?>> Registration addListener(Class<T> eventType, ComponentEventListener<T> listener) {
-        return getEventBus().addListener(eventType,listener);
+        return getEventBus().addListener(eventType, listener);
     }
-
 }
