@@ -64,7 +64,7 @@ public class MainView extends VerticalLayout {
             delete.addClickListener(e -> deleteGroup(group));
             return delete;
         }).setWidth("150px").setFlexGrow(0);
-        grid.getColumns().forEach(col -> col.setAutoWidth(true)); /* TODO Настройка столбцов*/
+        grid.getColumns().forEach(col -> col.setAutoWidth(true));
     }
 
     private void translationColumns() {
@@ -78,7 +78,7 @@ public class MainView extends VerticalLayout {
         Button addGroupButton = new Button("Добавить группу");
         addGroupButton.addClickListener(e -> addGroup());
         var toolbar = new HorizontalLayout(addGroupButton);
-        toolbar.addClassName("toolbar");/*TODO Добавление некоторых имен классов к компонентам упрощает последующую стилизацию приложения с помощью CSS*/
+        toolbar.addClassName("toolbar");
         return toolbar;
     }
 
@@ -118,6 +118,6 @@ public class MainView extends VerticalLayout {
     }
 
     private void updateList() {
-        grid.setItems(service.findAllGroup()); /*TODO Поиск по номеру и факультету*/
+        grid.setItems(service.findAllGroup());
     }
 }

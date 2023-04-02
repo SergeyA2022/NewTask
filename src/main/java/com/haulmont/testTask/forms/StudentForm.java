@@ -74,7 +74,7 @@ public class StudentForm extends FormLayout {
     }
 
 
-    private Component createButtonsLayout() { /*TODO Украшения кнопок чтобы нарядные были*/
+    private Component createButtonsLayout() {
         ok.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         ok.addClickListener(event -> validateAndSave());
         Cancel.addThemeVariants(ButtonVariant.LUMO_TERTIARY);

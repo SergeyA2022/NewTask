@@ -50,6 +50,7 @@ public class StudentsView extends Div {
         form.addListener(StudentForm.SaveEvent.class, this::saveStudent);
         form.addListener(StudentForm.CloseEvent.class, e -> closeEditor());
     }
+
     private void configureGrid() {
         grid.addClassNames("student-grid");
         grid.setSizeFull();
@@ -67,7 +68,7 @@ public class StudentsView extends Div {
             delete.addClickListener(e -> deleteStudent(student));
             return delete;
         }).setWidth("150px").setFlexGrow(2);
-        grid.getColumns().forEach(col -> col.setAutoWidth(true)); /* TODO Настройка столбцов */
+        grid.getColumns().forEach(col -> col.setAutoWidth(true));
     }
 
     private void translationColumns() {
@@ -97,7 +98,6 @@ public class StudentsView extends Div {
                 updateList(lastName.getValue(), group.getValue());
             }
         });
-        /*TODO Добавление некоторых имен классов к компонентам упрощает последующую стилизацию приложения с помощью CSS*/
         var toolbar = new HorizontalLayout(lastName, group, apply, addGroupButton);
         toolbar.addClassName("toolbar");
         return toolbar;
@@ -147,14 +147,14 @@ public class StudentsView extends Div {
     }
 
     public void updateList(TextField lastName) {
-        grid.setItems(studentService.findAllStudentName(lastName.getValue())); /*TODO фильтор по фамилии*/
+        grid.setItems(studentService.findAllStudentName(lastName.getValue()));
     }
 
     public void updateList(String lastName, Group group) {
-        grid.setItems(studentService.findAllStudentGroup(lastName, group));/*TODO фильтор по фамилии группе*/
+        grid.setItems(studentService.findAllStudentGroup(lastName, group));
     }
 
     private void updateList() {
-        grid.setItems(studentService.findAllStudent());/*TODO обновление grid*/
+        grid.setItems(studentService.findAllStudent());
     }
 }
