@@ -46,7 +46,7 @@ public class StudentsView extends Div {
     }
 
     private void configureForm() {
-        form = new StudentForm(service.findAllGroup());
+        form = new StudentForm(service.findAllGroups());
         form.addListener(StudentForm.SaveEvent.class, this::saveStudent);
         form.addListener(StudentForm.CloseEvent.class, e -> closeEditor());
     }
@@ -83,7 +83,7 @@ public class StudentsView extends Div {
     }
 
     private HorizontalLayout getToolbar() {
-        group.setItems(service.findAllGroup());
+        group.setItems(service.findAllGroups());
         group.setItemLabelGenerator(Group::getNumber);
         group.setClearButtonVisible(true);
         lastName.setPlaceholder("Фамилия");

@@ -19,7 +19,6 @@ public class StudentService {
     }
     public void saveStudent(Student student) {
         if (student == null) {
-            System.err.println("Contact is null. Are you sure you have connected your form to the application?");
             return;
         }
         studentDao.save(student);

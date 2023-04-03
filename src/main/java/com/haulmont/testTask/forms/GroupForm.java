@@ -19,18 +19,16 @@ public class GroupForm extends FormLayout {
     private final TextField number = new TextField("Номер группы");
     private final TextField faculty = new TextField("Факультет");
     private final Button ok = new Button("OK");
-    private final Button Cancel = new Button("Отменить");
-
+    private final Button cancel = new Button("Отменить");
     Dialog dialog = new Dialog();
 
     public GroupForm(List<Group> groups) {
         addClassName("group-form");
-
         binder.forField(number)
                 .asRequired("Это поле обязательное для заполнения!")
                 .withValidator(
-                        name -> !name.equals(foreach(groups, name)),
-                        "Вы пытаетесь добавить существующую группу")
+                        number -> groups.stream().noneMatch(group -> group.getNumber().equals(number)),
+                        "Такая группа уже существует!")
                 .bind(Group::getNumber, Group::setNumber);
         binder.forField(faculty)
                 .asRequired("Это поле обязательное для заполнения!")
@@ -38,13 +36,6 @@ public class GroupForm extends FormLayout {
         dialog.add(new VerticalLayout(number, faculty, createButtonsLayout()));
     }
 
-    private String foreach(List<Group> groups, String name) {
-        for (Group g : groups)
-            if (g.getNumber().equals(name)) {
-                return name;
-            }
-        return null;
-    }
 
     public void setGroup(Group group) {
         binder.setBean(group);
@@ -57,9 +48,9 @@ public class GroupForm extends FormLayout {
     private Component createButtonsLayout() {
         ok.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         ok.addClickListener(event -> validateAndSave());
-        Cancel.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        Cancel.addClickListener(event -> fireEvent(new CloseEvent(this)));
-        return new HorizontalLayout(ok, Cancel);
+        cancel.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        cancel.addClickListener(event -> fireEvent(new CloseEvent(this)));
+        return new HorizontalLayout(ok, cancel);
     }
 
     private void validateAndSave() {
@@ -68,7 +59,7 @@ public class GroupForm extends FormLayout {
         }
     }
 
-    public static abstract class GroupFormEvent extends ComponentEvent<GroupForm> {
+    public abstract static class GroupFormEvent extends ComponentEvent<GroupForm> {
         private final Group group;
 
         protected GroupFormEvent(GroupForm source, Group group) {

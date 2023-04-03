@@ -19,7 +19,7 @@ public class GroupService {
         this.studentDao = studentDao;
     }
 
-    public List<Group> findAllGroup() {
+    public List<Group> findAllGroups() {
         return groupDao.findAll();
     }
 
@@ -36,6 +36,4 @@ public class GroupService {
         }
         groupDao.save(group);
     }
-
-
 }

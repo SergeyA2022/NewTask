@@ -18,20 +18,16 @@ import com.vaadin.flow.router.Route;
 public class MainView extends VerticalLayout {
     private final GroupService service;
     private final Grid<Group> grid = new Grid<>(Group.class, false);
-    private GroupForm form;
-    private final Dialog dialog;
+    private Dialog dialog;
 
     public MainView(GroupService service) {
         this.service = service;
         addClassName("list-view");
         setSizeFull();
         configureGrid();
-        configureForm();
         translationColumns();
-        dialog = form.getDialog();
-        add(getToolbar(), getContent(), dialog);
+        add(getToolbar(), getContent());
         updateList();
-        closeEditor();
     }
 
     private HorizontalLayout getContent() {
@@ -42,10 +38,13 @@ public class MainView extends VerticalLayout {
         return content;
     }
 
-    private void configureForm() {
-        form = new GroupForm(service.findAllGroup());
-        form.addListener(GroupForm.SaveEvent.class, this::saveGroup);
-        form.addListener(GroupForm.CloseEvent.class, e -> closeEditor());
+    public GroupForm configureForm() {
+        GroupForm form = new GroupForm(service.findAllGroups());
+        form.addListener(GroupForm.SaveEvent.class, event -> saveGroup(event, form));
+        form.addListener(GroupForm.CloseEvent.class, e -> closeEditor(form));
+        dialog = form.getDialog();
+        add(dialog);
+        return form;
     }
 
     private void configureGrid() {
@@ -55,7 +54,7 @@ public class MainView extends VerticalLayout {
         grid.addComponentColumn(group -> {
             Button edit = new Button("Изменить");
             edit.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-            edit.addClickListener(e -> editGroup(group));
+            edit.addClickListener(e -> editGroup(group, configureForm()));
             return edit;
         }).setWidth("150px").setFlexGrow(0);
         grid.addComponentColumn(group -> {
@@ -76,34 +75,33 @@ public class MainView extends VerticalLayout {
 
     private HorizontalLayout getToolbar() {
         Button addGroupButton = new Button("Добавить группу");
-        addGroupButton.addClickListener(e -> addGroup());
+        addGroupButton.addClickListener(e -> addGroup(configureForm()));
         var toolbar = new HorizontalLayout(addGroupButton);
         toolbar.addClassName("toolbar");
         return toolbar;
     }
 
-    private void closeEditor() {
+    private void closeEditor(GroupForm form) {
         form.setGroup(null);
         dialog.close();
         form.setVisible(false);
         removeClassName("editing");
     }
 
-    private void saveGroup(GroupForm.SaveEvent event) {
+    private void saveGroup(GroupForm.SaveEvent event, GroupForm form) {
         service.saveGroup(event.getGroup());
         updateList();
-        closeEditor();
+        closeEditor(form);
     }
 
     private void deleteGroup(Group group) {
         service.deleteGroup(group);
         updateList();
-        closeEditor();
     }
 
-    private void editGroup(Group group) {
+    private void editGroup(Group group, GroupForm form) {
         if (group == null) {
-            closeEditor();
+            closeEditor(form);
         } else {
             form.setGroup(group);
             dialog.open();
@@ -112,12 +110,12 @@ public class MainView extends VerticalLayout {
         }
     }
 
-    private void addGroup() {
+    private void addGroup(GroupForm form) {
         grid.asSingleSelect().clear();
-        editGroup(new Group());
+        editGroup(new Group(), form);
     }
 
     private void updateList() {
-        grid.setItems(service.findAllGroup());
+        grid.setItems(service.findAllGroups());
     }
 }
