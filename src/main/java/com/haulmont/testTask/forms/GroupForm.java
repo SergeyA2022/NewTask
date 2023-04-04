@@ -26,23 +26,13 @@ public class GroupForm extends FormLayout {
         addClassName("group-form");
         binder.forField(number)
                 .asRequired("Это поле обязательное для заполнения!")
+                .withValidator(
+                        number -> groups.stream().filter(g -> !gro.getId().equals(g.getId())).noneMatch(g -> g.getNumber().equals(number)),
+                        "Такая группа уже существует!")
                 .bind(Group::getNumber, Group::setNumber);
         binder.forField(faculty)
                 .asRequired("Это поле обязательное для заполнения!")
                 .bind(Group::getFaculty, Group::setFaculty);
-        if (gro.getNumber() == null) {
-            binder.forField(number)
-                    .withValidator(
-                            number -> groups.stream().noneMatch(g -> g.getNumber().equals(number)),
-                            "Такая группа уже существует!")
-                    .bind(Group::getNumber, Group::setNumber);
-        }else{
-            binder.forField(number)
-                    .withValidator(
-                            number -> groups.stream().filter(g -> !gro.getId().equals(g.getId())).noneMatch(g -> g.getNumber().equals(number)),
-                            "Изменить на этот номер нельзя, такая группа уже существует!")
-                    .bind(Group::getNumber, Group::setNumber);
-        }
         dialog.add(new VerticalLayout(number, faculty, createButtonsLayout()));
     }
 

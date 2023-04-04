@@ -55,9 +55,7 @@ public class MainView extends VerticalLayout {
         grid.addComponentColumn(group -> {
             Button edit = new Button("Изменить");
             edit.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-            edit.addClickListener(e -> {
-                editGroup(group, configureForm(group));
-            });
+            edit.addClickListener(e -> editGroup(group, configureForm(group)));
             return edit;
         }).setWidth("150px").setFlexGrow(0);
         grid.addComponentColumn(group -> {
@@ -79,8 +77,7 @@ public class MainView extends VerticalLayout {
     private HorizontalLayout getToolbar() {
         Button addGroupButton = new Button("Добавить группу");
         addGroupButton.addClickListener(e -> {
-            Group group = new Group();
-            addGroup(configureForm(group));
+            addGroup(configureForm(new Group()));
         });
         var toolbar = new HorizontalLayout(addGroupButton);
         toolbar.addClassName("toolbar");
