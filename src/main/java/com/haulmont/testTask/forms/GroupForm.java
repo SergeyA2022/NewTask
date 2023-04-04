@@ -22,17 +22,24 @@ public class GroupForm extends FormLayout {
     private final Button cancel = new Button("Отменить");
     Dialog dialog = new Dialog();
 
-    public GroupForm(List<Group> groups) {
+    public GroupForm(List<Group> groups, int formSelect) {
         addClassName("group-form");
+        if (formSelect == 1) {
+            number.setReadOnly(true);
+        }
         binder.forField(number)
                 .asRequired("Это поле обязательное для заполнения!")
-                .withValidator(
-                        number -> groups.stream().noneMatch(group -> group.getNumber().equals(number)),
-                        "Такая группа уже существует!")
                 .bind(Group::getNumber, Group::setNumber);
         binder.forField(faculty)
                 .asRequired("Это поле обязательное для заполнения!")
                 .bind(Group::getFaculty, Group::setFaculty);
+        if (formSelect == 2) {
+            binder.forField(number)
+                    .withValidator(
+                            number -> groups.stream().noneMatch(group -> group.getNumber().equals(number)),
+                            "Такая группа уже существует!")
+                    .bind(Group::getNumber, Group::setNumber);
+        }
         dialog.add(new VerticalLayout(number, faculty, createButtonsLayout()));
     }
 

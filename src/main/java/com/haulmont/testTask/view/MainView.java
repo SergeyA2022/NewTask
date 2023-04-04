@@ -19,6 +19,7 @@ public class MainView extends VerticalLayout {
     private final GroupService service;
     private final Grid<Group> grid = new Grid<>(Group.class, false);
     private Dialog dialog;
+    private int formSelect;
 
     public MainView(GroupService service) {
         this.service = service;
@@ -38,8 +39,8 @@ public class MainView extends VerticalLayout {
         return content;
     }
 
-    public GroupForm configureForm() {
-        GroupForm form = new GroupForm(service.findAllGroups());
+    public GroupForm configureForm(int formSelect) {
+        GroupForm form = new GroupForm(service.findAllGroups(), formSelect);
         form.addListener(GroupForm.SaveEvent.class, event -> saveGroup(event, form));
         form.addListener(GroupForm.CloseEvent.class, e -> closeEditor(form));
         dialog = form.getDialog();
@@ -54,7 +55,10 @@ public class MainView extends VerticalLayout {
         grid.addComponentColumn(group -> {
             Button edit = new Button("Изменить");
             edit.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-            edit.addClickListener(e -> editGroup(group, configureForm()));
+            edit.addClickListener(e -> {
+                formSelect = 1;
+                editGroup(group, configureForm(formSelect));
+            });
             return edit;
         }).setWidth("150px").setFlexGrow(0);
         grid.addComponentColumn(group -> {
@@ -75,7 +79,10 @@ public class MainView extends VerticalLayout {
 
     private HorizontalLayout getToolbar() {
         Button addGroupButton = new Button("Добавить группу");
-        addGroupButton.addClickListener(e -> addGroup(configureForm()));
+        addGroupButton.addClickListener(e -> {
+            formSelect = 2;
+            addGroup(configureForm(formSelect));
+        });
         var toolbar = new HorizontalLayout(addGroupButton);
         toolbar.addClassName("toolbar");
         return toolbar;
