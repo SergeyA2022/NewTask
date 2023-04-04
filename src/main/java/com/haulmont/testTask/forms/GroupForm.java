@@ -24,9 +24,6 @@ public class GroupForm extends FormLayout {
 
     public GroupForm(List<Group> groups, int formSelect) {
         addClassName("group-form");
-        if (formSelect == 1) {
-            number.setReadOnly(true);
-        }
         binder.forField(number)
                 .asRequired("Это поле обязательное для заполнения!")
                 .bind(Group::getNumber, Group::setNumber);
