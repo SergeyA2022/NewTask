@@ -3,11 +3,16 @@ package com.haulmont.testTask.view;
 import com.haulmont.testTask.entity.Group;
 import com.haulmont.testTask.service.GroupService;
 import com.haulmont.testTask.forms.GroupForm;
+import com.haulmont.testTask.service.StudentService;
 import com.haulmont.testTask.view.list.ListLayout;
+import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
@@ -17,12 +22,15 @@ import com.vaadin.flow.router.Route;
 @PageTitle("Dean's office")
 public class MainView extends VerticalLayout {
     private final GroupService service;
+    private final StudentService studentService;
     private final Grid<Group> grid = new Grid<>(Group.class, false);
     private Dialog dialog;
-    private int formSelect;
+    Span status = new Span();
+    ConfirmDialog confirmDialog = new ConfirmDialog();
 
-    public MainView(GroupService service) {
+    public MainView(GroupService service, StudentService studentService) {
         this.service = service;
+        this.studentService = studentService;
         addClassName("list-view");
         setSizeFull();
         configureGrid();
@@ -58,13 +66,37 @@ public class MainView extends VerticalLayout {
             edit.addClickListener(e -> editGroup(group, configureForm(group)));
             return edit;
         }).setWidth("150px").setFlexGrow(0);
+
+        HorizontalLayout layout = new HorizontalLayout();
+        layout.setAlignItems(FlexComponent.Alignment.CENTER);
+        layout.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
+        confirmDialog.setHeader("Ошибка");
+        confirmDialog.setText(new Html(
+                "<p>Запрещено удалять группу в которой есть студенты!</p>"));
+        confirmDialog.setConfirmText("OK");
+        confirmDialog.addConfirmListener(event -> setStatus("Acknowledged"));
+
         grid.addComponentColumn(group -> {
             Button delete = new Button("Удалить");
             delete.addThemeVariants(ButtonVariant.LUMO_ERROR);
-            delete.addClickListener(e -> deleteGroup(group));
+            layout.add(delete, status);
+            add(layout);
+            delete.addClickListener(e -> {
+                if ((studentService.findAllStudentGroup(null, group).stream().count() <= 0)) {
+                    deleteGroup(group);
+                } else {
+                    confirmDialog.open();
+                }
+                status.setVisible(false);
+            });
             return delete;
         }).setWidth("150px").setFlexGrow(0);
         grid.getColumns().forEach(col -> col.setAutoWidth(true));
+    }
+
+    private void setStatus(String value) {
+        status.setText("Status: " + value);
+        status.setVisible(true);
     }
 
     private void translationColumns() {

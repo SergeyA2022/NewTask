@@ -27,7 +27,7 @@ public class GroupForm extends FormLayout {
         binder.forField(number)
                 .asRequired("Это поле обязательное для заполнения!")
                 .withValidator(
-                        number -> groups.stream().filter(g -> !gro.getId().equals(g.getId())).noneMatch(g -> g.getNumber().equals(number)),
+                        number -> groups.stream().filter(g -> (gro.getId() != g.getId())).noneMatch(g -> g.getNumber().equals(number)),
                         "Такая группа уже существует!")
                 .bind(Group::getNumber, Group::setNumber);
         binder.forField(faculty)
